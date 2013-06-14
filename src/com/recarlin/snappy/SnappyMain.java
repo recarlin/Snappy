@@ -17,6 +17,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -42,7 +44,7 @@ public class SnappyMain extends Activity {
 			@Override
 			public void onClick(View v) {
 				File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Snappy");
-				String timeStamp = new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(new Date());
+				String timeStamp = new SimpleDateFormat("MMddyyyyHHmmss").format(new Date());
 				String imageFileName =  "pic_" + timeStamp;
 				try {
 					image = File.createTempFile(imageFileName, FILE_TYPE, storageDir);
@@ -75,5 +77,10 @@ public class SnappyMain extends Activity {
 	    Uri contentUri = Uri.fromFile(f);
 	    mediaScanIntent.setData(contentUri);
 	    this.sendBroadcast(mediaScanIntent);
+	    
+	    NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+	    Notification noti = new Notification();
+	    noti.tickerText = "New Picture Saved!";
+	    manager.notify(42, noti);
 	}
 }
