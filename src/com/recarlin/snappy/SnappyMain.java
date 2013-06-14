@@ -7,6 +7,7 @@
 package com.recarlin.snappy;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -69,13 +70,15 @@ public class SnappyMain extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-	    Uri contentUri = Uri.fromFile(image);
-	    mediaScanIntent.setData(contentUri);
-	    this.sendBroadcast(mediaScanIntent);
+		try {
+			MediaStore.Images.Media.insertImage(getContentResolver(), image.getAbsolutePath(), image.getName(), image.getName());
+		} catch (FileNotFoundException e) {
+			Log.e("GALLERY", "Could not find file to save to gallery.");
+		}
 	    
 	    NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 	    Notification noti = new Notification();
-	    manager.notify("Image Saved!", 1, noti);
+	    noti.defaults = Notification.DEFAULT_SOUND;
+	    manager.notify(1, noti);
 	}
 }
