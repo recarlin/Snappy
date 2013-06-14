@@ -20,16 +20,13 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 
 public class SnappyMain extends Activity {
 	
-	private String photo;
 	private File image;
 	private static String FILE_TYPE;
 	
@@ -43,12 +40,16 @@ public class SnappyMain extends Activity {
 			@SuppressLint("SimpleDateFormat")
 			@Override
 			public void onClick(View v) {
-				File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Snappy");
-				String timeStamp = new SimpleDateFormat("MMddyyyyHHmmss").format(new Date());
+				File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "/Snappy");
+				if (! storageDir.exists()){
+			        if (! storageDir.mkdirs()){
+			            Log.d("DIRECTORY MAKE", "Failed to make directory.");
+			        }
+			    }
+				String timeStamp = new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(new Date());
 				String imageFileName =  "pic_" + timeStamp;
 				try {
 					image = File.createTempFile(imageFileName, FILE_TYPE, storageDir);
-					photo = image.getAbsolutePath();
 				} catch (IOException e) {
 					Log.e("FILE CREATION", "There was an issue creating the file: " + imageFileName + "  " + storageDir);
 				}
@@ -68,19 +69,13 @@ public class SnappyMain extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Bitmap theImage = (Bitmap) data.getExtras().get("data");
-		ImageView iView = ((ImageView) findViewById(R.id.imageView));
-		iView.setImageBitmap(theImage);
-		
 		Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-	    File f = new File(photo);
-	    Uri contentUri = Uri.fromFile(f);
+	    Uri contentUri = Uri.fromFile(image);
 	    mediaScanIntent.setData(contentUri);
 	    this.sendBroadcast(mediaScanIntent);
 	    
 	    NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 	    Notification noti = new Notification();
-	    noti.tickerText = "New Picture Saved!";
-	    manager.notify(42, noti);
+	    manager.notify("Image Saved!", 1, noti);
 	}
 }
